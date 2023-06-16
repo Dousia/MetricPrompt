@@ -1,0 +1,14 @@
+company
+school university
+artist
+athlete
+politics
+transportation
+building
+river mountain lake
+village
+animal
+plant tree
+album
+film
+book publication
