@@ -31,7 +31,7 @@ The inference stage can be further accelerated by filtering out representative t
 
 
 ## Data 
-We ran experiments on 3 text classification datasets under 4 few-shot settings: AG's News, DBPedia and Yahoo Answers Topics. 
+We conduct experiments on 3 text classification datasets: AG's News, DBPedia and Yahoo Answers Topics. 
 Run the following commands to obtain full datasets: 
 ```
 cd ./data
@@ -68,9 +68,6 @@ bash metricprompt.sh agnews 2 120
 - `main.py` is the entrance of MetricPrompt's training and testing procedure.
 - `model.py` contains model definition, as well as the implementation of the optimization and inference process.
 - `dataloader.py` contains data processing code. 
-
-
-
 
 
 
