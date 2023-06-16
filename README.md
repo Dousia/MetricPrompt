@@ -71,6 +71,3 @@ bash metricprompt.sh agnews 2 120
 
 
 
-
-
-
