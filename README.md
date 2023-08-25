@@ -4,7 +4,7 @@ Code and data for KDD 2023 long paper:
 *MetricPrompt: Prompting Model as a Relevance Metric for Few-Shot Text Classification*. Hongyuan Dong, Weinan Zhang, Wanxiang Che
 	
 If you find this work useful and use it on your own research, please cite our paper.
-Our paper is now available on [arXiv](https://arxiv.org/abs/2306.08892), and will soon be published at KDD 2023 conference. 
+Our paper is available on [ACM DL](https://dl.acm.org/doi/10.1145/3580305.3599430) and [arXiv](https://arxiv.org/abs/2306.08892). 
 
 	
 ## Overview
