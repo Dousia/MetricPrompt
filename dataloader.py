@@ -3,6 +3,7 @@ import json
 import random
 import datasets
 import pandas as pd
+from datasets import load_dataset
 
 from transformers import BertForMaskedLM, BertConfig, BertTokenizer
 
@@ -28,43 +29,30 @@ MODEL_CLASSES = {
 }
 
 
-def convert(data):
-    for i, item in enumerate(data):
-        new_item = {}
-        new_item['raw'] = item['title'] + item['text']
-        new_item['label'] = item['label']
-        new_item['text_len'] = item['text_len']
-        data[i] = new_item
-
-
 def load_true_few_shot_dataset(args):
 
     labels = []
-    with open(os.path.join(args.data_path, 'TextClassification', args.dataset, 'classes.txt')) as f:
+    with open(os.path.join(args.data_path, 'classes', args.dataset, 'classes.txt')) as f:
         for line in f.readlines():
             line = line.strip()
             if len(line) > 0:
                 labels.append(line)
 
     if args.dataset == 'agnews':
-        test_df = pd.read_csv(os.path.join(args.data_path, 'TextClassification', args.dataset, 'test.csv'), header=None)
+        dataset = load_dataset('fancyzhx/ag_news')
+        test_dataset = dataset.data['test'].table
+        test_df = test_dataset.to_pandas()
         test_data = []
         for i in range(test_df.shape[0]):
             line = test_df.loc[i]
-            label_id, title, text = list(line)
-            label_id -= 1
-            # raw = title + '. ' + text
-            # text = text[:200]
+            label_id, text = line['label'], line['text']
             text = ' '.join(text.split()[:120])
             item = {
-                'title': title,
-                'text': text,
+                'raw': text,
                 'label': str(label_id),
                 'text_len': len(text)
             }
             test_data.append(item)
-
-        convert(test_data)
 
         if os.path.exists(
                 os.path.join(args.data_path, 'TextClassification', args.dataset, str(args.k_shot) + 'shot.txt')):
@@ -74,32 +62,29 @@ def load_true_few_shot_dataset(args):
                 for line in f.readlines():
                     line = line.strip()
                     episode = json.loads(line)
-                    convert(episode['support_set'])
                     episode['query_set'] = test_data
                     episode['labels'] = labels
                     episodes.append(episode)
 
             return episodes
 
-        train_df = pd.read_csv(os.path.join(args.data_path, 'TextClassification', args.dataset, 'train.csv'), header=None)
+        train_dataset = dataset.data['train'].table
+        train_df = train_dataset.to_pandas()
         train_data_dict = {i: [] for i in range(len(labels))}
         for i in range(train_df.shape[0]):
             line = train_df.loc[i]
-            label_id, title, text = list(line)
-            label_id -= 1
-            # raw = title + '. ' + text
-            # text = text[:200]
+            label_id, text = line['label'], line['text']
             text = ' '.join(text.split()[:120])
             item = {
-                'title': title,
-                'text': text,
+                'raw': text,
                 'label': str(label_id),
                 'text_len': len(text)
             }
             train_data_dict[label_id].append(item)
 
     elif args.dataset == 'yahoo_answers_topics':
-        path = os.path.join(args.data_path, 'TextClassification', 'yahoo_answers_topics')
+        # path = os.path.join(args.data_path, 'TextClassification', 'yahoo_answers_topics')
+        dataset = load_dataset('community-datasets/yahoo_answers_topics')
         dataset = datasets.load_from_disk(dataset_path=path)
         test_dataset = dataset.data['test'].table.columns
         test_data = []
@@ -152,19 +137,20 @@ def load_true_few_shot_dataset(args):
             train_data_dict[label_id].append(item)
 
     else:
+        dataset = load_dataset('fancyzhx/dbpedia_14')
+        test_dataset = dataset.data['test'].table
+        test_df = test_dataset.to_pandas()
         test_data = []
-        with open(os.path.join(args.data_path, 'TextClassification', args.dataset, 'test.txt')) as sample_file:
-            with open(os.path.join(args.data_path, 'TextClassification', args.dataset, 'test_labels.txt')) as label_file:
-                for raw in sample_file.readlines():
-                    raw, label_id = raw.strip(), int(label_file.readline().strip())
-                    # raw = raw[:200]
-                    raw = ' '.join(raw.split()[:120])
-                    item = {
-                        'raw': raw,
-                        'label': label_id,
-                        'text_len': len(raw)
-                    }
-                    test_data.append(item)
+        for i in range(test_df.shape[0]):
+            line = test_df.loc[i]
+            label_id, text = line['label'], line['content']
+            text = ' '.join(text.split()[:120])
+            item = {
+                'raw': text,
+                'label': str(label_id),
+                'text_len': len(text)
+            }
+            test_data.append(item)
 
         if os.path.exists(
                 os.path.join(args.data_path, 'TextClassification', args.dataset, str(args.k_shot) + 'shot.txt')):
@@ -180,19 +166,19 @@ def load_true_few_shot_dataset(args):
 
             return episodes
 
+        train_dataset = dataset.data['train'].table
+        train_df = train_dataset.to_pandas()
         train_data_dict = {i: [] for i in range(len(labels))}
-        with open(os.path.join(args.data_path, 'TextClassification', args.dataset, 'train.txt')) as sample_file:
-            with open(os.path.join(args.data_path, 'TextClassification', args.dataset, 'train_labels.txt')) as label_file:
-                for raw in sample_file.readlines():
-                    raw, label_id = raw.strip(), int(label_file.readline().strip())
-                    # raw = raw[:200]
-                    raw = ' '.join(raw.split()[:120])
-                    item = {
-                        'raw': raw,
-                        'label': label_id,
-                        'text_len': len(raw)
-                    }
-                    train_data_dict[label_id].append(item)
+        for i in range(train_df.shape[0]):
+            line = train_df.loc[i]
+            label_id, text = line['label'], line['content']
+            text = ' '.join(text.split()[:120])
+            item = {
+                'raw': text,
+                'label': str(label_id),
+                'text_len': len(text)
+            }
+            train_data_dict[label_id].append(item)
 
     episodes = []
 
@@ -205,13 +191,11 @@ def load_true_few_shot_dataset(args):
         episode_to_save = {
             'support_set': train_data,
         }
-        with open(os.path.join(args.data_path, 'TextClassification', args.dataset, str(args.k_shot) + 'shot.txt'), 'a') as f:
+        with open(os.path.join(args.data_path, 'TextClassification', args.dataset, str(args.k_shot) + 'shot.txt'), 'w') as f:
             string = json.dumps(episode_to_save)
             f.write(string)
             f.write('\n')
 
-        if args.dataset == 'agnews':
-            convert(train_data)
         episode = {
             'support_set': train_data,
             'query_set': test_data,
