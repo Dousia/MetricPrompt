@@ -32,11 +32,7 @@ The inference stage can be further accelerated by filtering out representative t
 
 ## Data 
 We conduct experiments on 3 text classification datasets: AG's News, DBPedia and Yahoo Answers Topics. 
-Run the following commands to obtain full datasets: 
-```
-cd ./data
-bash download_text_classification.sh
-```
+The datasets will be downloaded automatically as you conducting experiments with them. 
 
 
 ## Environment
