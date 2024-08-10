@@ -38,6 +38,8 @@ def load_true_few_shot_dataset(args):
             if len(line) > 0:
                 labels.append(line)
 
+    os.makedirs(os.path.join(args.data_path, 'TextClassification', args.dataset), exist_ok=True)
+
     if args.dataset == 'agnews':
         dataset = load_dataset('fancyzhx/ag_news')
         test_dataset = dataset.data['test'].table
